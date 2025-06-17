@@ -1,25 +1,108 @@
 # config/router.yaml
 # Configuration for routing tasks or messages to different agents or workflows.
-# This structure is highly dependent on the specific routing logic to be implemented.
 
-# Example: Route based on keywords in user query
+# Default router settings (can be overridden by specific router implementations)
 default_router_config:
-  type: "keyword_based" # or "llm_based", "regex_based"
-  routes:
-    - name: "CodeRelatedRoute"
-      keywords: ["code", "python", "javascript", "debug", "function", "class", "algorithm"]
-      target_agent: "coding_assistant_agent" # Name of agent from agents.yaml
-    - name: "GeneralChatRoute"
-      keywords: [] # Default route if no other keywords match
-      target_agent: "default_chat_agent"
-
-  # Example: LLM-based routing configuration (requires more complex implementation)
-  # llm_router_config:
-  #   model_config_name: "mistral_7b_instruct" # A fast model for routing decisions
+  # type: "keyword_based" # Example: previous configuration
+  # routes:
+  #   - name: "CodeRelatedRoute"
+  #     keywords: ["code", "python", "javascript", "debug", "function", "class", "algorithm"]
+  #     target_agent: "coding_assistant_agent" # Name of agent from agents.yaml
+  #   - name: "GeneralChatRoute"
+  #     keywords: [] # Default route if no other keywords match
+  #     target_agent: "default_chat_agent"
+  # llm_router_config: # Example: LLM-based routing
+  #   model_config_name: "mistral_7b_instruct"
   #   routing_prompt: |
-  #     You are a task classification and routing expert. Based on the user's query,
-  #     classify it into one of the following categories and recommend an agent:
-  #     - "coding_task": For requests related to writing, debugging, or explaining code. (Agent: coding_assistant_agent)
-  #     - "general_conversation": For all other requests. (Agent: default_chat_agent)
-  #     User Query: {user_query}
-  #     Recommended Agent:
+  #     You are a task classification and routing expert... (prompt text)
+
+# --- New configurations based on Prompt 2 ---
+
+routing_rules:
+  # Rules for selecting models based on task type and complexity.
+  # Model names should correspond to keys in models.yaml or be directly usable by the LLM client.
+  # Ensure these model strings are valid (e.g., OpenRouter format or direct API format)
+  coding:
+    high_complexity: "openai/gpt-4-turbo-preview"  # Example: Top-tier model for complex coding
+    medium_complexity: "deepseek/deepseek-coder-33b-instruct" # Example: Good code model
+    low_complexity: "mistralai/mistral-7b-instruct-v0.2"   # Example: Smaller, faster model for simple code tasks
+    default: "mistralai/mistral-7b-instruct-v0.2" # Fallback if complexity not determined
+
+  analysis:
+    high_complexity: "anthropic/claude-3-opus-20240229"   # Example: Strong analytical model
+    medium_complexity: "openai/gpt-4-turbo-preview"       # Example: Another strong option
+    low_complexity: "google/gemini-pro"                 # Example: Capable and often cost-effective
+    default: "google/gemini-pro"
+
+  creative:
+    # For creative tasks, complexity might be less defined, so a default or tiered approach by capability
+    default: "anthropic/claude-3-opus-20240229"
+    cost_sensitive: "mistralai/mistral-7b-instruct-v0.2" # Cheaper option for creative tasks
+    high_quality: "anthropic/claude-3-opus-20240229"
+
+  research:
+    # Research often needs large context and strong reasoning
+    default: "google/gemini-pro" # Assuming gemini-1.5-pro if available on OpenRouter or direct
+    high_thoroughness: "anthropic/claude-3-opus-20240229"
+
+  translation:
+    default: "google/gemini-pro" # Many models are good at translation
+    specialized: "meta-llama/llama-3-70b-instruct" # If a specific multilingual model is preferred
+
+  math:
+    default: "openai/gpt-4-turbo-preview" # Models good at reasoning
+    complex: "anthropic/claude-3-opus-20240229"
+
+  general:
+    # General catch-all, often good to use a balanced model
+    default: "mistralai/mistral-7b-instruct-v0.2"
+    quality_preferred: "openai/gpt-4-turbo-preview"
+
+cost_optimization:
+  # Daily budget in USD (or your currency unit)
+  daily_budget: 10.00
+
+  # Maximum estimated cost per single LLM request
+  max_cost_per_request: 0.50 # Example: 50 cents
+
+  # If true, the router will try to pick a cheaper model if it meets requirements
+  prefer_cheaper_models: true
+
+  # A very cheap, reasonably capable model to use if budget is exceeded or other models fail
+  # Ensure this model is available and very low cost
+  emergency_fallback_model: "mistralai/mistral-7b-instruct-v0.2" # Or another similar free/low-cost model
+
+  # Placeholder for model costs (per 1M input tokens, 1M output tokens)
+  # These would ideally be fetched or updated regularly.
+  # For now, these are illustrative. Actual costs depend on OpenRouter or direct API pricing.
+  # Format: { "model_identifier": { "input_cost_pm": float, "output_cost_pm": float } }
+  model_costs:
+    "openai/gpt-4-turbo-preview": { "input_cost_pm": 10.00, "output_cost_pm": 30.00 }
+    "anthropic/claude-3-opus-20240229": { "input_cost_pm": 15.00, "output_cost_pm": 75.00 }
+    "google/gemini-pro": { "input_cost_pm": 0.50, "output_cost_pm": 1.50 } # Hypothetical for Gemini Pro 1.0
+    "deepseek/deepseek-coder-33b-instruct": { "input_cost_pm": 1.00, "output_cost_pm": 2.00 } # Example
+    "mistralai/mistral-7b-instruct-v0.2": { "input_cost_pm": 0.25, "output_cost_pm": 0.25 } # Example for a small model
+    "meta-llama/llama-3-70b-instruct": { "input_cost_pm": 1.00, "output_cost_pm": 2.00 } # Example
+
+# User preferences defaults (can be overridden at runtime)
+default_user_preferences:
+  cost_priority: "balanced" # "low_cost", "balanced", "performance"
+  # preferred_models: [] # e.g., ["openai/gpt-4-turbo-preview"]
+  # banned_models: []    # e.g., ["some_model_to_avoid"]
+
+# Cache settings for routing decisions
+routing_cache_config:
+  enabled: true
+  ttl_seconds: 3600 # Cache decisions for 1 hour
+  max_size: 1000    # Max number of cached entries
+
+# A/B testing configuration (placeholder for advanced functionality)
+ab_testing:
+  enabled: false
+  # strategies:
+  #   - name: "strategy_A"
+  #     weight: 0.5
+  #     rules_variant: "routing_rules_variant_A" # Points to another section in this YAML or a separate file
+  #   - name: "strategy_B"
+  #     weight: 0.5
+  #     rules_variant: "default" # Uses the main routing_rules

@@ -1,0 +1,25 @@
+# config/router.yaml
+# Configuration for routing tasks or messages to different agents or workflows.
+# This structure is highly dependent on the specific routing logic to be implemented.
+
+# Example: Route based on keywords in user query
+default_router_config:
+  type: "keyword_based" # or "llm_based", "regex_based"
+  routes:
+    - name: "CodeRelatedRoute"
+      keywords: ["code", "python", "javascript", "debug", "function", "class", "algorithm"]
+      target_agent: "coding_assistant_agent" # Name of agent from agents.yaml
+    - name: "GeneralChatRoute"
+      keywords: [] # Default route if no other keywords match
+      target_agent: "default_chat_agent"
+
+  # Example: LLM-based routing configuration (requires more complex implementation)
+  # llm_router_config:
+  #   model_config_name: "mistral_7b_instruct" # A fast model for routing decisions
+  #   routing_prompt: |
+  #     You are a task classification and routing expert. Based on the user's query,
+  #     classify it into one of the following categories and recommend an agent:
+  #     - "coding_task": For requests related to writing, debugging, or explaining code. (Agent: coding_assistant_agent)
+  #     - "general_conversation": For all other requests. (Agent: default_chat_agent)
+  #     User Query: {user_query}
+  #     Recommended Agent:

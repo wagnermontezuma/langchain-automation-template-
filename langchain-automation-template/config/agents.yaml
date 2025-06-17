@@ -1,0 +1,29 @@
+# config/agents.yaml
+# Defines configurations for different agents.
+
+default_chat_agent:
+  name: "DefaultChatAgent"
+  description: "A general purpose chat agent."
+  model_config_name: "mistral_7b_instruct" # References a model from models.yaml
+  tools: [] # No tools by default for a simple chat agent
+  system_message_prompt: |
+    You are a helpful AI assistant. Your goal is to provide accurate and concise information.
+    Be friendly and polite.
+  max_iterations: 5
+  parallel_tool_calls: false
+
+coding_assistant_agent:
+  name: "CodingAssistantAgent"
+  description: "An agent specialized for helping with code-related tasks."
+  model_config_name: "deepseek_coder_instruct" # Or another code model like "openai/gpt-4-turbo"
+  tools:
+    - "code_interpreter_tool" # Placeholder, tool implementation needed
+    - "file_search_tool"      # Placeholder
+  system_message_prompt: |
+    You are an expert software developer and coding assistant.
+    Your primary goal is to help users write, understand, debug, and optimize code.
+    Provide clear explanations, suggest improvements, and generate accurate code snippets.
+    When asked to write code, try to provide a complete, runnable example if feasible.
+    If you need to make assumptions, state them clearly.
+  max_iterations: 10
+  parallel_tool_calls: true

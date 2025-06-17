@@ -1,0 +1,68 @@
+# config/models.yaml
+# Defines configurations for various language models accessible via OpenRouter or directly.
+# Ensure api_key_env corresponds to an environment variable you will set.
+
+openai_gpt_4_turbo:
+  name: "OpenAI GPT-4 Turbo"
+  provider: "OpenAI"
+  api_key_env: OPENAI_API_KEY # Placeholder, OpenRouter uses its own key
+  base_url: null # For direct OpenAI, otherwise OpenRouter URL is used by client
+  model_name: "openai/gpt-4-turbo-preview" # OpenRouter model string
+  temperature: 0.7
+  max_tokens: 4096
+  context_window: 128000
+  default_params:
+    top_p: 1.0
+    # frequency_penalty: 0.0
+    # presence_penalty: 0.0
+
+anthropic_claude_3_opus:
+  name: "Anthropic Claude 3 Opus"
+  provider: "Anthropic"
+  api_key_env: ANTHROPIC_API_KEY # Placeholder
+  model_name: "anthropic/claude-3-opus-20240229" # OpenRouter model string
+  temperature: 0.7
+  max_tokens: 4000 # Check Anthropic's actual limits
+  context_window: 200000
+  default_params: {}
+
+google_gemini_pro:
+  name: "Google Gemini Pro"
+  provider: "Google"
+  api_key_env: GOOGLE_API_KEY # Placeholder
+  model_name: "google/gemini-pro" # OpenRouter model string
+  temperature: 0.8
+  max_tokens: 8192 # Check Google's actual limits
+  context_window: 32768 # Example, verify
+  default_params: {}
+
+meta_llama_3_70b_instruct:
+  name: "Meta Llama 3 70B Instruct"
+  provider: "Meta"
+  api_key_env: META_API_KEY # Placeholder, or often accessed via providers like TogetherAI, OpenRouter
+  model_name: "meta-llama/llama-3-70b-instruct" # OpenRouter model string
+  temperature: 0.6
+  max_tokens: 4096
+  context_window: 8192
+  default_params: {}
+
+deepseek_coder_instruct:
+  name: "Deepseek Coder Instruct"
+  provider: "Deepseek"
+  api_key_env: DEEPSEEK_API_KEY # Placeholder
+  model_name: "deepseek/deepseek-coder-33b-instruct" # OpenRouter model string
+  temperature: 0.7
+  max_tokens: 4096
+  context_window: 16384
+  default_params: {}
+
+# Example of a free model on OpenRouter for testing without specific provider keys
+mistral_7b_instruct:
+  name: "Mistral 7B Instruct (Free on OpenRouter)"
+  provider: "MistralAI"
+  api_key_env: OPENROUTER_API_KEY # Uses the main OpenRouter key
+  model_name: "mistralai/mistral-7b-instruct-v0.2" # Check for latest free model string
+  temperature: 0.7
+  max_tokens: 2000
+  context_window: 32768
+  default_params: {}
